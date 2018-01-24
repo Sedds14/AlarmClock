@@ -12,22 +12,6 @@ from phue import Light
 
 def main():
 
-    preStart()
-    while(True):
-        # Wait a quarter second (less than 1 second to prevent colon
-        # blinking getting annoying)  
-        time.sleep(0.25)            
-        if light.on is True clockUpdate(4) 
-        # If the room light is on update time at normal
-        # brightness (normal operation
-        elif GPIO.input(BtnPin) is 0 clockUpdate(0) 
-        # Else if the button is pressed show the 
-        # time at lowest brightness setting (night operation)
-        else clockOff() 
-        # Else do not show the time. It's sleepy time.
-
-
-def preStart():
     # Setup Display
     segment = SevenSegment.SevenSegment(address=0x70)
     display = HT16K33.HT16K33(address=0x70)
@@ -43,6 +27,22 @@ def preStart():
     bridge = Bridge('192.168.0.10')
     # Initialise the bedroom light
     light = Light(bridge, 'Bedroom')
+
+    while(True):
+        # Wait a quarter second (less than 1 second to prevent colon
+        # blinking getting annoying)  
+        time.sleep(0.25)          
+        if light.on:
+            clockUpdate(4)
+        # If the room light is on update time at normal
+        # brightness (normal operation
+        elif GPIO.input(BtnPin) is 0:
+            clockUpdate(0)
+        # Else if the button is pressed show the
+        # time at lowest brightness setting (night operation)
+        else:
+            clockOff()
+        # Else do not show the time. It's sleepy time.
 
 
 def clockUpdate(brightness):
