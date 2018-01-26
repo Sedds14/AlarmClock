@@ -40,12 +40,15 @@ def main():
     display = HT16K33.HT16K33(address=0x70)
     # Initialize the display. Must be called once before using the display.
     segment.begin()
-  
+
     # Setup GPIO Button
-    BtnPin = 12  # pin12 --- button
-    GPIO.setmode(GPIO.BOARD)						       # Numbers GPIOs by physical location
-    GPIO.setup(BtnPin, GPIO.IN, pull_up_down=GPIO.PUD_UP)  # Set BtnPin's mode as input
-    
+    # pin12 --- button
+    button_pin = 12
+    # Numbers GPIOs by physical location
+    GPIO.setmode(GPIO.BOARD)
+    # Set button_pin's mode as input
+    GPIO.setup(button_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)  
+
     # Initialize the philips bridge
     bridge = Bridge('192.168.0.10')
     # Initialise the bedroom light
