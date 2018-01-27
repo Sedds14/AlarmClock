@@ -25,7 +25,14 @@ To Do:
 import time
 import datetime
 import RPi.GPIO as GPIO
+import httplib2
+import os
 
+from __future__ import print_function
+from apiclient import discovery
+from oauth2client import client
+from oauth2client import tools
+from oauth2client.file import Storage
 from Adafruit_LED_Backpack import SevenSegment
 from Adafruit_LED_Backpack import HT16K33
 from phue import Bridge
@@ -127,6 +134,63 @@ def clock_off():
     segment.set_colon(0)
     # Write the display buffer to the hardware.
     segment.write_display()
+
+
+def get_credentials():
+    """
+    This has been lifted from the google example
+    Gets valid user credentials from storage.
+
+    If nothing has been stored, or if the stored credentials are invalid,
+    the OAuth2 flow is completed to obtain the new credentials.
+
+    Returns:
+        Credentials, the obtained credential.
+    """
+    home_dir = os.path.expanduser('~')
+    credential_dir = os.path.join(home_dir, '.credentials')
+    if not os.path.exists(credential_dir):
+        os.makedirs(credential_dir)
+    credential_path = os.path.join(credential_dir,
+                                   'calendar-python-quickstart.json')
+
+    store = Storage(credential_path)
+    credentials = store.get()
+    if not credentials or credentials.invalid:
+        flow = client.flow_from_clientsecrets('client_secret.json',
+                                              'https://www.googleapis.com/auth/calendar.readonly')
+        flow.user_agent = 'clock.py'
+        if flags:
+            credentials = tools.run_flow(flow, store, flags)
+        else:  # Needed only for compatibility with Python 2.6
+            credentials = tools.run(flow, store)
+        print('Storing credentials to ' + credential_path)
+    return credentials
+
+
+def is_next_event(calendar_name, event_name, target_time):
+    """Is it time for this type of alarm?
+
+    Creates a Google Calendar API service object and gets the next event on a
+    certain calendar, with a partiular event name, following a particular time.
+    """
+    # Get credentials and authorise
+    credentials = get_credentials()
+    http = credentials.authorize(httplib2.Http())
+    service = discovery.build('calendar', 'v3', http=http)
+
+    print('Getting the upcoming 10 events')
+    events_result = service.events().list(
+        calendarId=calendar_name, timeMin=target_time, maxResults=1, 
+        singleEvents=True, orderBy='startTime').execute()
+    events = events_result.get('items', [])
+
+    if not events:
+        print('No upcoming events found.')
+    for event in events:
+        start = event['start'].get('dateTime', event['start'].get('date'))
+        print(start, event['summary'])
+
 
 if __name__ == "__main__":
     main()
