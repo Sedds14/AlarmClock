@@ -18,6 +18,8 @@ To Do:
     - Battery backup?
     - Mic, privacy switch and button for alexa?
     - A case!
+    - Wake up alarm that turns up the lights gradually before waking
+
 """""
 
 import time
