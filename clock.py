@@ -56,10 +56,10 @@ def main():
     # Initialise the bedroom light
     light = Light(bridge, 'Bedroom')
 
-    loop()
+    loop(display, segment, light, button_pin)
 
 
-def loop():
+def loop(display, segment, light, button_pin):
     """
     This is the main loop, it loops every 0.25 secs
     and calls other functions to update the display
@@ -71,19 +71,19 @@ def loop():
         # blinking getting annoying)  
         time.sleep(0.25)          
         if light.on:
-            clockUpdate(4)
+            clock_update(display, segment,4)
         # If the room light is on update time at normal
         # brightness (normal operation)
-        elif GPIO.input(BtnPin) is 0:
-            clockUpdate(0)
+        elif GPIO.input(button_pin) is 0:
+            clock_update(display, segment,0)
         # Else if the button is pressed show the
         # time at lowest brightness setting (night operation)
         else:
-            clockOff()
+            clock_off(segment)
         # Else do not show the time. It's sleepy time.
 
 
-def clock_update(brightness):
+def clock_update(display, segment ,brightness):
     """
     Updates the clock with the current time.
     Arguments:
@@ -113,7 +113,7 @@ def clock_update(brightness):
     segment.write_display()	
 
 
-def clock_off():
+def clock_off(segment):
     """
     This function turns off the display by printing an empty string and turning
     off the colon.
